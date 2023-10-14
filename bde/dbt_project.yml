@@ -29,9 +29,28 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 # In this example config, we tell dbt to build all models in the example/
 # directory as views. These settings can be overridden in the individual model
-# files using the `{{ config(...) }}` macro.
+snapshots:
+  listing_snapshot:
+    +strategy: timestamp
+    +updated_at: price,has_availability
+  host_snapshot:
+    +strategy: timestamp
+    +updated_at: host_id,host_is_superhost
+  host_snapshot:
+    +strategy: timestamp
+    +updated_at: property_type,room_type
+
+
+
 models:
   bde:
     # Config indicated by + and applies to all files under models/example/
-    example:
+    datamart:
       +materialized: view
+      +schema: datamart
+    warehouse:
+      +materialized: table
+      +schema: warehouse
+    staging:
+      +materialized: view
+      +schema: staging

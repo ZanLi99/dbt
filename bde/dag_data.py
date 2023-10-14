@@ -273,6 +273,7 @@ create_psql_table_nsw_lga_code_task = PostgresOperator(
     postgres_conn_id="postgres",
     sql="""
         CREATE TABLE IF NOT EXISTS raw.nsw_lga_code (
+            id SERIAL PRIMARY KEY,
             lga_code        INT,
             lga_name        VARCHAR
             );
@@ -303,6 +304,7 @@ create_psql_table_nsw_lga_suburb_task = PostgresOperator(
     postgres_conn_id="postgres",
     sql="""
         CREATE TABLE IF NOT EXISTS raw.nsw_lga_suburb (
+            id SERIAL PRIMARY KEY,
             lga_name        VARCHAR,
             suburb_name     VARCHAR
             );
@@ -335,6 +337,7 @@ create_psql_table_census_two_task = PostgresOperator(
     postgres_conn_id="postgres",
     sql="""
         CREATE TABLE IF NOT EXISTS raw.census_two (
+            id SERIAL PRIMARY KEY,
             LGA_CODE_2016                   VARCHAR,
             Median_age_persons              INTEGER,
             Median_mortgage_repay_monthly   INTEGER,
@@ -372,6 +375,7 @@ create_psql_table_census_one_task = PostgresOperator(
     postgres_conn_id="postgres",
     sql="""
         CREATE TABLE IF NOT EXISTS raw.census_one (
+            id SERIAL PRIMARY KEY,
             LGA_CODE_2016 VARCHAR,
             Tot_P_M INT,
             Tot_P_F INT,
@@ -510,6 +514,7 @@ create_psql_table_house_task = PostgresOperator(
     postgres_conn_id="postgres",
     sql="""
         CREATE TABLE IF NOT EXISTS raw.house (
+            id SERIAL PRIMARY KEY,
             LISTING_ID INT,
             SCRAPE_ID VARCHAR,
             SCRAPED_DATE VARCHAR,
