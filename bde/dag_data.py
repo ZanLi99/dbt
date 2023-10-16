@@ -500,7 +500,7 @@ insert_data_census_one_task = PythonOperator(
 # ------------------------------------------------------
 
 # Import House data
-import_data_lga_code_task = PythonOperator(
+import_data_house_task = PythonOperator(
     task_id='import_date_func_house',
     python_callable=import_date_func_house,
     op_kwargs={},
@@ -554,4 +554,4 @@ create_psql_table_nsw_lga_code_task >> import_data_lga_code_task >> insert_data_
 create_psql_table_nsw_lga_suburb_task >> import_data_lga_suburb_task >> insert_data_suburb_task
 create_psql_table_census_two_task >> import_data_lga_census_two_task >> insert_data_census_two_task
 create_psql_table_census_one_task >> import_data_lga_census_one_task >> insert_data_census_one_task
-create_psql_table_house_task >> import_data_lga_code_task >> insert_data_census_house_task
+create_psql_table_house_task >> import_data_house_task >> insert_data_census_house_task
