@@ -1,0 +1,21 @@
+models:
+  - name: dim_property.yml
+    description: >
+      This is the dimension table for property data. It includes the house information and price.
+    columns:
+      - name: id
+        description: A unique identifier for the property.
+      - name: scraped_date
+        description: The record date.
+      - name: property_type
+        description: The type of property.
+      - name: room_type
+        description: The type of room.
+      - name: accommodates
+        description: How many people can live in.
+      - name: price
+        description: The price of the room.
+      - name: has_availability
+        description: Whether the room is availiable.
+      - name: availability_30
+        description: Use to calculate the stays (30 - availability_30).

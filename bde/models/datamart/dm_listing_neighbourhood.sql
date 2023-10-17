@@ -10,8 +10,10 @@ with dm_listing_neighbourhood as (
     count(distinct host_id) as distinct_host,
   	round(sum(case when  h.host_is_superhost  = true then  1 else  0 end )::numeric / nullif(count(h.host_is_superhost),0) *100,2) as Superhost_ratio,
     round(avg(case when p.has_availability = true then r.review_scores_rating end),2) as average_review_scores_rating,
- 	round((lead(sum(case when p.has_availability = true then 1 else 0 end)) over (partition by listing_neighbourhood order by to_char(l.scraped_date, 'MM/YYYY')) - sum(case when p.has_availability = true then 1 else 0 end))::numeric / nullif(sum(case when p.has_availability = true then 1 else 0 end),0)::numeric *100,2) as active_change,
- 	round((lead(sum(case when p.has_availability = false then 1 else 0 end)) over (partition by listing_neighbourhood order by to_char(l.scraped_date, 'MM/YYYY')) - sum(case when p.has_availability = false then 1 else 0 end))::numeric / nullif(sum(case when p.has_availability = true then 1 else 0 end),0)::numeric *100,2) as inactive_change,
+ 	round((lead(sum(case when p.has_availability = true then 1 else 0 end)) over (partition by listing_neighbourhood order by to_char(l.scraped_date, 'MM/YYYY')) 
+        - sum(case when p.has_availability = true then 1 else 0 end))::numeric / nullif(sum(case when p.has_availability = true then 1 else 0 end),0)::numeric *100,2) as active_change,
+ 	round((lead(sum(case when p.has_availability = false then 1 else 0 end)) over (partition by listing_neighbourhood order by to_char(l.scraped_date, 'MM/YYYY')) 
+        - sum(case when p.has_availability = false then 1 else 0 end))::numeric / nullif(sum(case when p.has_availability = true then 1 else 0 end),0)::numeric *100,2) as inactive_change,
     (sum(case when p.has_availability = true then 30 - p.availability_30  else 0 end)) as stays,
 	round(avg(case when p.has_availability = true then (30 - p.availability_30)*p.price  else 0 end),2) as avg_estimate_revenue
   from 
