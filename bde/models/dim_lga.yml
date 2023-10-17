@@ -1,0 +1,11 @@
+models:
+  - name: dim_lga
+    description: >
+      This is the dimension table for lga data.
+    columns:
+      - name: lga_code
+        description: A unique identifier for the lga.
+      - name: lga_name
+        description: The big area of the lga.
+      - name: suburb_name
+        description: The suburb name of the lga name.

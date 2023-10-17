@@ -11,20 +11,11 @@ with population as(
 listing as (
 	select 
 		l.listing_neighbourhood,
-		round(sum(case when has_availability = true then 30 - availability_30  else 0 end * price),2) as estimate_revenue 
-	from warehouse.fact_listing l
+		round(sum(case when p.has_availability = true then 30 - p.availability_30  else 0 end * p.price),2) as estimate_revenue 
+	from warehouse.dim_listing l
+	join warehouse.dim_property p
+	on p.id = l.id
 	group by l.listing_neighbourhood 
-),
-lga as (
-	select 
-		a.lga_code,
-		a.lga_name,
-		s.suburb_name 
-	from 
-		warehouse.dim_lga a
-	join 
-		warehouse.dim_suburb s
-	on lower(s.lga_name) = lower(a.lga_name)
 ),
 order_list as (
 select 
@@ -37,7 +28,7 @@ select
 	row_number() over (order by l.estimate_revenue) as row_num,
     count(*) over () as total_rows
 from 
-	lga a 
+	warehouse.dim_lga a
 join 
 	population p 
 on 
@@ -109,50 +100,52 @@ select
  order by stays desc;
 
  --Question 3
- with room_table as (
-select dh.host_id, dp.property_type,dp.room_type, fl.accommodates  from 
-warehouse.dim_host dh 
-join
-warehouse.fact_listing fl 
-on dh.id = fl.id
-join 
-warehouse.dim_property dp 
-on dp.id = dh.id
-group by dh.host_id, dp.property_type,dp.room_type, fl.accommodates
+with room_table as (
+	select dh.host_id, dp.property_type,dp.room_type, dp.accommodates  
+	from 
+		warehouse.dim_host dh 
+	join
+		warehouse.dim_listing fl 
+	on dh.id = fl.id
+	join 
+		warehouse.dim_property dp 
+	on dp.id = dh.id
+	group by dh.host_id, dp.property_type,dp.room_type, dp.accommodates
 ),
 multiple_host as ( 
-select host_id from room_table
-group by host_id
-having count(host_id) > 1
+	select host_id from room_table
+	group by host_id
+	having count(host_id) > 1
 ),
-count_host as (
-select 
-	mh.host_id,
-	dh.host_name,
-	ds.lga_name,
-	count(fl.listing_neighbourhood)
-from multiple_host mh
-join warehouse.dim_host dh 
-on mh.host_id = dh.host_id
-join warehouse.fact_listing fl 
-on fl.id = dh.id
-join warehouse.dim_suburb ds 
-on lower(ds.suburb_name) = lower(fl.listing_neighbourhood)
-group by mh.host_id,dh.host_name,ds.lga_name
-order by mh.host_id, dh.host_name
+host_area as (
+	select id, lga_name from warehouse.dim_host dh 
+	join warehouse.dim_lga dl 
+	on lower(dh.host_neighbourhood) = lower(dl.suburb_name)
+	join multiple_host mh
+	on mh.host_id = dh.host_id
+),
+listing_area as (
+	select id, lga_name from warehouse.dim_listing li 
+	join warehouse.dim_lga dl 
+	on lower(li.listing_neighbourhood) = lower(dl.suburb_name) 
 )
-select round(count(distinct host_id)::numeric / count(host_id)::numeric,2) as same_area_rate from count_host;
+select 
+    round(sum(case when h.lga_name = l.lga_name then 1 else 0 end)::numeric / nullif(count(*),0)::numeric * 100,2) as local_rate
+from host_area h
+join listing_area l
+on h.id = l.id
+
 --Question 4
 with room_table as (
-select dh.host_id, dp.property_type,dp.room_type, fl.accommodates  from 
+select dh.host_id, dp.property_type,dp.room_type, dp.accommodates  from 
 warehouse.dim_host dh 
 join
-warehouse.fact_listing fl 
+warehouse.dim_listing fl 
 on dh.id = fl.id
 join 
 warehouse.dim_property dp 
 on dp.id = dh.id
-group by dh.host_id, dp.property_type,dp.room_type, fl.accommodates
+group by dh.host_id, dp.property_type,dp.room_type, dp.accommodates
 ),
 single_host as ( 
 select host_id from room_table
@@ -165,17 +158,11 @@ select
 	ft.median_mortgage_repay_monthly as monthly_repay
 from warehouse.fact_two ft 
 ),
-lga_table as (
-select 
-	mr.lga_code, 
-	mr.monthly_repay,
-	dl.lga_name,
-	ds.suburb_name 
-from month_repay mr
-join warehouse.dim_lga dl  
+lga_repay as (
+select * 
+from warehouse.dim_lga dl
+join month_repay mr 
 on mr.lga_code = dl.lga_code
-join warehouse.dim_suburb ds 
-on lower(dl.lga_name) = lower(ds.lga_name)
 ),
 host_area as (
 select 
@@ -189,8 +176,11 @@ join
 	warehouse.dim_host dh 
 on sh.host_id = dh.host_id
 join
-	warehouse.fact_listing fl
+	warehouse.dim_listing fl
 on fl.id = dh.id 
+join 
+	warehouse.dim_property dp
+on dp.id =dh.id 
 group by sh.host_id, dh.host_name, fl.listing_neighbourhood 
 ),
 revenue_table as (
@@ -199,12 +189,12 @@ select
 	ha.host_name,
 	ha.listing_neighbourhood,
 	ha.estimate_revenue,
-	lt.monthly_repay
+	lr.monthly_repay
 from 
 	host_area ha
 join
-	lga_table lt
-on lower(ha.listing_neighbourhood) = lower(lt.suburb_name)
+	lga_repay lr
+on lower(ha.listing_neighbourhood) = lower(lr.suburb_name)
 order by estimate_revenue desc
 )
 select 

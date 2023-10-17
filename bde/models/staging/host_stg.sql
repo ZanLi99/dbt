@@ -19,7 +19,7 @@ clean as (
         host_name,
         TO_DATE(host_since, 'DD/MM/YYYY') AS host_since,
         host_is_superhost,
-        host_neighbourhood,
+        lower(host_neighbourhood) as host_neighbourhood,
         dbt_scd_id,
         TO_DATE(dbt_updated_at, 'DD/MM/YYYY') AS dbt_updated_at,
         TO_DATE(dbt_valid_from, 'DD/MM/YYYY') AS dbt_valid_from,

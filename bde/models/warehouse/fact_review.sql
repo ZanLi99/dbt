@@ -4,4 +4,4 @@
     )
 }}
 
-select * from {{ ref('suburb_snapshot') }}
+select * from {{ ref('review_snapshot') }}

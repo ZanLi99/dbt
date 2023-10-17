@@ -1,0 +1,14 @@
+models:
+  - name: dim_host
+    description: >
+      This is the dimension table for host data.
+    columns:
+      - name: host_id
+        description: A unique identifier for the host.
+      - name: host_name
+        description: The name of the host.
+      - name: host_since
+        description: The enroll date of the host.
+      - name: host_neighbourhood
+        description: The living area of the host.
+

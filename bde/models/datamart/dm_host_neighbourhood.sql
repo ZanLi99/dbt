@@ -1,11 +1,23 @@
 with dm_host_neighbourhood as (
-	select * from 
-		{{ ref('fact_listing')}} l
-	left join 
+	select 
+		l.id, 
+		l.scraped_date, 
+		h.host_id,
+		h.host_name,
+		h.host_neighbourhood,
+		s.lga_name,
+		p.price,
+		p.has_availability,
+		p.availability_30 
+	from 
+		{{ ref('dim_listing')}} l 
+	join 
 		{{ ref('dim_host')}} h
 	on l.id = h.id
-	left join
-		{{ ref('dim_suburb')}} s
+	join {{ ref('dim_property')}} p
+	on l.id =p.id 
+	join
+		{{ ref('dim_lga')}} s
 	on
 		lower(h.host_neighbourhood) = lower(s.suburb_name) 
 )

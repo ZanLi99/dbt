@@ -1,0 +1,11 @@
+models:
+  - name: dim_listing
+    description: >
+      This is the dimension table for listing data (a part of Airbnb data).
+    columns:
+      - name: listing_id
+        description: A unique identifier for the listing data.
+      - name: scraped_date
+        description: The date of the recording.
+      - name: listing_neighbourhood
+        description: The area of the house.

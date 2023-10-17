@@ -9,6 +9,6 @@
         )
     }}
 
-select id, scraped_date, property_type, room_type from {{ source('raw', 'house') }}
+select id, scraped_date, property_type, room_type, accommodates, price, has_availability, availability_30 from {{ source('raw', 'house') }}
 
 {% endsnapshot %}
